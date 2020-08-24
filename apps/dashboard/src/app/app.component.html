@@ -3,7 +3,7 @@
   [isAuthenticated]="isAuthenticated$ | async"
   [sidenavEnabled]="sidenavStatus !== 'disabled'"
   (logout)="logout()"
-  (toggleSidenav)="toggleSidenav()">
+  (toggleSidenav)="toggleSidenav()" data-cy="toolbar">
 </bba-toolbar>
 
 <mat-sidenav-container>
@@ -18,7 +18,7 @@
       </span>
       <mat-divider></mat-divider>
       <mat-nav-list>
-        <mat-list-item *ngFor="let link of links" [routerLink]="link.path" routerLinkActive="active">
+        <mat-list-item *ngFor="let link of links" [routerLink]="link.path" routerLinkActive="active" data-cy="nav-link">
           <mat-icon matListIcon>{{link.icon}}</mat-icon>
           {{link.title | uppercase}}
         </mat-list-item>
