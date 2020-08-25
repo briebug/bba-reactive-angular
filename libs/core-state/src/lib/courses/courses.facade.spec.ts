@@ -1,118 +1,105 @@
-import { NgModule } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { readFirst } from '@nrwl/angular/testing';
+import { TestBed } from "@angular/core/testing";
+import { ActionsSubject } from "@ngrx/store";
 
-import { EffectsModule } from '@ngrx/effects';
-import { StoreModule, Store } from '@ngrx/store';
+import { CoursesFacade } from "./courses.facade";
+import * as CoursesActions from "./courses.actions";
+import { initialCoursesState } from "./courses.reducer";
+import { mockCourse } from "@bba/testing";
+import { MockStore, provideMockStore } from "@ngrx/store/testing";
 
-import { NxModule } from '@nrwl/angular';
-
-import { CoursesEntity } from './courses.models';
-import { CoursesEffects } from './courses.effects';
-import { CoursesFacade } from './courses.facade';
-
-import * as CoursesSelectors from './courses.selectors';
-import * as CoursesActions from './courses.actions';
-import {
-  COURSES_FEATURE_KEY,
-  State,
-  initialState,
-  reducer,
-} from './courses.reducer';
-
-interface TestSchema {
-  courses: State;
-}
-
-describe('CoursesFacade', () => {
+describe("CoursesFacade", () => {
   let facade: CoursesFacade;
-  let store: Store<TestSchema>;
-  const createCoursesEntity = (id: string, name = '') =>
-    ({
-      id,
-      name: name || `name-${id}`,
-    } as CoursesEntity);
+  let actionSubject;
+  const mockActionsSubject = new ActionsSubject();
+  let store: MockStore;
 
-  beforeEach(() => {});
-
-  describe('used in NgModule', () => {
-    beforeEach(() => {
-      @NgModule({
-        imports: [
-          StoreModule.forFeature(COURSES_FEATURE_KEY, reducer),
-          EffectsModule.forFeature([CoursesEffects]),
-        ],
-        providers: [CoursesFacade],
-      })
-      class CustomFeatureModule {}
-
-      @NgModule({
-        imports: [
-          NxModule.forRoot(),
-          StoreModule.forRoot({}),
-          EffectsModule.forRoot([]),
-          CustomFeatureModule,
-        ],
-      })
-      class RootModule {}
-      TestBed.configureTestingModule({ imports: [RootModule] });
-
-      store = TestBed.get(Store);
-      facade = TestBed.get(CoursesFacade);
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        CoursesFacade,
+        provideMockStore({ initialState: initialCoursesState }),
+        { provide: ActionsSubject, useValue: mockActionsSubject },
+      ],
     });
 
-    /**
-     * The initially generated facade::loadAll() returns empty array
-     */
-    it('loadAll() should return empty list with loaded == true', async (done) => {
-      try {
-        let list = await readFirst(facade.allCourses$);
-        let isLoaded = await readFirst(facade.loaded$);
+    facade = TestBed.inject(CoursesFacade);
+    actionSubject = TestBed.inject(ActionsSubject);
+    store = TestBed.inject(MockStore);
+  });
 
-        expect(list.length).toBe(0);
-        expect(isLoaded).toBe(false);
+  it("should be created", () => {
+    expect(facade).toBeTruthy();
+  });
 
-        facade.dispatch(CoursesActions.loadCourses());
+  it("should have mutations", (done) => {
+    const action = CoursesActions.createCourse({ course: mockCourse });
+    actionSubject.next(action);
 
-        list = await readFirst(facade.allCourses$);
-        isLoaded = await readFirst(facade.loaded$);
+    facade.mutations$.subscribe((result) => {
+      expect(result).toBe(action);
+      done();
+    });
+  });
 
-        expect(list.length).toBe(0);
-        expect(isLoaded).toBe(true);
+  describe("should dispatch", () => {
+    it("select on select(course.id)", () => {
+      const spy = jest.spyOn(store, "dispatch");
 
-        done();
-      } catch (err) {
-        done.fail(err);
-      }
+      facade.selectCourse(mockCourse.id);
+
+      const action = CoursesActions.selectCourse({ selectedId: mockCourse.id });
+
+      expect(spy).toHaveBeenCalledWith(action);
     });
 
-    /**
-     * Use `loadCoursesSuccess` to manually update list
-     */
-    it('allCourses$ should return the loaded list; and loaded flag == true', async (done) => {
-      try {
-        let list = await readFirst(facade.allCourses$);
-        let isLoaded = await readFirst(facade.loaded$);
+    it("loadCourses on loadCourses()", () => {
+      const spy = jest.spyOn(store, "dispatch");
 
-        expect(list.length).toBe(0);
-        expect(isLoaded).toBe(false);
+      facade.loadCourses();
 
-        facade.dispatch(
-          CoursesActions.loadCoursesSuccess({
-            courses: [createCoursesEntity('AAA'), createCoursesEntity('BBB')],
-          })
-        );
+      const action = CoursesActions.loadCourses();
 
-        list = await readFirst(facade.allCourses$);
-        isLoaded = await readFirst(facade.loaded$);
+      expect(spy).toHaveBeenCalledWith(action);
+    });
 
-        expect(list.length).toBe(2);
-        expect(isLoaded).toBe(true);
+    it("loadCourse on loadCourse(course.id)", () => {
+      const spy = jest.spyOn(store, "dispatch");
 
-        done();
-      } catch (err) {
-        done.fail(err);
-      }
+      facade.loadCourse(mockCourse.id);
+
+      const action = CoursesActions.loadCourse({ courseId: mockCourse.id });
+
+      expect(spy).toHaveBeenCalledWith(action);
+    });
+
+    it("createCourse on createCourse(course)", () => {
+      const spy = jest.spyOn(store, "dispatch");
+
+      facade.createCourse(mockCourse);
+
+      const action = CoursesActions.createCourse({ course: mockCourse });
+
+      expect(spy).toHaveBeenCalledWith(action);
+    });
+
+    it("updateCourse on updateCourse(course)", () => {
+      const spy = jest.spyOn(store, "dispatch");
+
+      facade.updateCourse(mockCourse);
+
+      const action = CoursesActions.updateCourse({ course: mockCourse });
+
+      expect(spy).toHaveBeenCalledWith(action);
+    });
+
+    it("delete on delete(model)", () => {
+      const spy = jest.spyOn(store, "dispatch");
+
+      facade.deleteCourse(mockCourse);
+
+      const action = CoursesActions.deleteCourse({ course: mockCourse });
+
+      expect(spy).toHaveBeenCalledWith(action);
     });
   });
 });

@@ -1,29 +1,26 @@
-import { LessonsEntity } from './lessons.models';
-import { State, lessonsAdapter, initialState } from './lessons.reducer';
-import * as LessonsSelectors from './lessons.selectors';
+import { LessonsState, lessonsAdapter, initialLessonsState } from "./lessons.reducer";
+import * as LessonsSelectors from "./lessons.selectors";
+import { Lesson } from "@bba/api-interfaces";
+import { mockLesson } from "@bba/testing";
 
-describe('Lessons Selectors', () => {
-  const ERROR_MSG = 'No Error Available';
-  const getLessonsId = (it) => it['id'];
-  const createLessonsEntity = (id: string, name = '') =>
-    ({
-      id,
-      name: name || `name-${id}`,
-    } as LessonsEntity);
+describe("Lessons Selectors", () => {
+  const ERROR_MSG = "No Error Available";
+  const getLessonsId = (it) => it["id"];
+  const createLesson = (id: string, name = "") => ({ ...mockLesson, id: id } as Lesson);
 
   let state;
 
   beforeEach(() => {
     state = {
-      lessons: lessonsAdapter.addAll(
+      lessons: lessonsAdapter.setAll(
         [
-          createLessonsEntity('PRODUCT-AAA'),
-          createLessonsEntity('PRODUCT-BBB'),
-          createLessonsEntity('PRODUCT-CCC'),
+          createLesson("PRODUCT-AAA"),
+          createLesson("PRODUCT-BBB"),
+          createLesson("PRODUCT-CCC"),
         ],
         {
-          ...initialState,
-          selectedId: 'PRODUCT-BBB',
+          ...initialLessonsState,
+          selectedId: "PRODUCT-BBB",
           error: ERROR_MSG,
           loaded: true,
         }
@@ -31,20 +28,20 @@ describe('Lessons Selectors', () => {
     };
   });
 
-  describe('Lessons Selectors', () => {
-    it('getAllLessons() should return the list of Lessons', () => {
+  describe("Lessons Selectors", () => {
+    it("getAllLessons() should return the list of Lessons", () => {
       const results = LessonsSelectors.getAllLessons(state);
       const selId = getLessonsId(results[1]);
 
       expect(results.length).toBe(3);
-      expect(selId).toBe('PRODUCT-BBB');
+      expect(selId).toBe("PRODUCT-BBB");
     });
 
-    it('getSelected() should return the selected Entity', () => {
-      const result = LessonsSelectors.getSelected(state);
+    it("getSelected() should return the selected Entity", () => {
+      const result = LessonsSelectors.getSelectedLesson(state);
       const selId = getLessonsId(result);
 
-      expect(selId).toBe('PRODUCT-BBB');
+      expect(selId).toBe("PRODUCT-BBB");
     });
 
     it("getLessonsLoaded() should return the current 'loaded' status", () => {
