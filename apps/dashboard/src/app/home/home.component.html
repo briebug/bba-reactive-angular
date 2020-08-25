@@ -1,5 +1,5 @@
 <div class="home-container">
-  <mat-card *ngFor="let course of courseLesons$ | async">
+  <mat-card *ngFor="let course of courseLesons$ | async" data-cy="home-card">
     <mat-card-header>
       <mat-card-title>{{course.title}}</mat-card-title>
       <mat-card-subtitle>{{course.description}}</mat-card-subtitle>

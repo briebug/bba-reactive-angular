@@ -111,7 +111,9 @@
           "options": {
             "cypressConfig": "apps/dashboard-e2e/cypress.json",
             "tsConfig": "apps/dashboard-e2e/tsconfig.e2e.json",
-            "devServerTarget": "dashboard:serve"
+            "devServerTarget": "dashboard:serve",
+            "watch": true,
+            "exit": false
           },
           "configurations": {
             "production": {
