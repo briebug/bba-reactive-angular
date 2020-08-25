@@ -1,16 +1,17 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { MaterialModule } from "@bba/material";
+import { UsersListComponent } from "./users-list.component";
 
-import { UsersListComponent } from './users-list.component';
-
-describe('UsersListComponent', () => {
+describe("UsersListComponent", () => {
   let component: UsersListComponent;
   let fixture: ComponentFixture<UsersListComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UsersListComponent ]
-    })
-    .compileComponents();
+      declarations: [UsersListComponent],
+      imports: [MaterialModule, NoopAnimationsModule],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -19,7 +20,7 @@ describe('UsersListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
